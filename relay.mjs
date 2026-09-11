@@ -3,21 +3,26 @@ import {readFile} from 'node:fs/promises';
 import {randomUUID,timingSafeEqual} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import path from 'node:path';
+import {createAuth} from './auth.mjs';
 
 const root=path.dirname(fileURLToPath(import.meta.url));
 const allowed=new Set(['list','read','send','new','pending','answer','stop']);
-export function createRelay({browserToken,hostToken}) {
+export function createRelay({browserToken,hostToken,authStorePath,authNow,authIdleMs}) {
   if(!browserToken || !hostToken || browserToken.length<24 || hostToken.length<24 || browserToken===hostToken) throw Error('需要两个不同的至少 24 位访问密钥');
   const jobs=new Map(); let lastSeen=0;
+  const auth=createAuth({browserToken,storePath:authStorePath,now:authNow,idleMs:authIdleMs});
   const equal=(a,b)=>{const x=Buffer.from(a||''),y=Buffer.from(b);return x.length===y.length&&timingSafeEqual(x,y)};
   const reply=(res,status,data)=>{if(!res.writableEnded){res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'});res.end(JSON.stringify(data))}};
   async function body(req){let data='';for await(const c of req){data+=c;if(Buffer.byteLength(data)>131072)throw Error('请求过大')}return JSON.parse(data||'{}')}
   const server=http.createServer(async(req,res)=>{
     res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('Referrer-Policy','no-referrer');
     const url=new URL(req.url,'http://localhost');
+    if(url.pathname.startsWith('/auth/')){
+      try{return reply(res,200,auth.handle(req,res,url.pathname,await body(req)))}catch(e){return reply(res,e.status||400,{error:e.message})}
+    }
     const isHost=url.pathname.startsWith('/host/');
     if(url.pathname.startsWith('/api/')||isHost){
-      if(!equal(req.headers.authorization?.replace(/^Bearer /,''),isHost?hostToken:browserToken))return reply(res,401,{error:'访问密钥不正确'});
+      if(!(isHost?equal(req.headers.authorization?.replace(/^Bearer /,''),hostToken):auth.authorize(req)))return reply(res,401,{error:'登录已过期或访问密钥不正确'});
       try{
         if(isHost)lastSeen=Date.now();
         if(req.method==='GET'&&url.pathname==='/api/status')return reply(res,200,{online:Date.now()-lastSeen<10000,pending:jobs.size});
@@ -48,6 +53,6 @@ export function createRelay({browserToken,hostToken}) {
   return server;
 }
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){
-  const server=createRelay({browserToken:process.env.POCKET_BROWSER_TOKEN,hostToken:process.env.POCKET_HOST_TOKEN});
+  const server=createRelay({browserToken:process.env.POCKET_BROWSER_TOKEN,hostToken:process.env.POCKET_HOST_TOKEN,authStorePath:path.join(root,'.local','auth.json')});
   server.listen(Number(process.env.PORT||8787),process.env.BIND||'127.0.0.1',()=>console.log(`Pocket Codex 中转已启动，端口 ${server.address().port}`));
 }
