@@ -1,0 +1,1 @@
+{"name":"Pocket Codex relay","image":"mcr.microsoft.com/devcontainers/javascript-node:1-22-bookworm","forwardPorts":[8787],"portsAttributes":{"8787":{"label":"随行 Codex","onAutoForward":"notify"}},"postStartCommand":"bash scripts/start-cloud.sh"}
