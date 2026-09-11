@@ -1,7 +1,7 @@
 <!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer"><title>随行 · 手机控制电脑</title><link rel="stylesheet" href="style.css"></head><body><main>
 <span class="tag">随行 CODEX</span><h1>手机说一声，<br>电脑接着做。</h1>
-<div class="setup" role="status"><strong>正在配置，暂时还不能远程聊天</strong><p>手机入口已上线。云端转发服务还未创建，所以 GitHub 里暂时没有对应项目。不是你操作错了。</p></div>
-<p>配置完成后，每次使用只要下面三步。“转发服务”就是帮手机和电脑传话的小程序。</p>
+<div class="setup" role="status"><strong>正在配置，暂时还不能远程聊天</strong><p>手机入口已上线，电脑本地收发已测试成功。还需要你在 GitHub 完成第一次创建：打开项目，点 Code → Codespaces → Create codespace on main，选择双核即可。</p></div>
+<p><a class="button" href="https://github.com/xxby-cmd/pocket-codex-preview" target="_blank" rel="noopener noreferrer">第一次使用：打开项目创建服务</a></p><p>配置完成后，每次使用只要下面三步。“转发服务”就是帮手机和电脑传话的小程序。</p>
 <section><span class="step">第一步</span><h2>叫醒转发服务</h2><p>跳转到 GitHub，登录自己的账号，打开对应项目，把休眠的服务启动起来。现在项目尚未创建，列表里可能是空的。</p><a class="button" href="https://github.com/codespaces" target="_blank" rel="noopener noreferrer">去 GitHub 打开服务</a></section>
 <section><span class="step">第二步</span><h2>打开聊天，给电脑发消息</h2><p>等服务启动、电脑连接成功后，在这里选择对话并发送任务。</p><button id="open" disabled>聊天地址还在配置</button><details><summary>填写或更换聊天地址（配置时使用）</summary><label for="url">聊天网址</label><input id="url" type="url" placeholder="配置完成后填写 HTTPS 地址"><button id="saveUrl" type="button">保存聊天地址</button></details></section>
 <section><span class="step">第三步</span><h2>用完关掉，节省免费时长</h2><p>进入 GitHub 的项目列表，找到对应项目，打开右侧菜单，选择 <strong>Stop codespace</strong>（停止）。这只关闭云端转发服务，不会关闭电脑。</p><a class="button secondary" href="https://github.com/codespaces" target="_blank" rel="noopener noreferrer">去 GitHub 停止服务</a><small>停止后仍占用存储额度。再次使用时，重新做第一步。</small></section>
