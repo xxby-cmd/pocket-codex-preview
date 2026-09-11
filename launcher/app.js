@@ -1,6 +1,8 @@
 const $=id=>document.getElementById(id);let token='',poll;
-$('url').value=localStorage.getItem('pocketRelayUrl')||'';
-function updateChatButton(){const configured=!!localStorage.getItem('pocketRelayUrl');$('open').disabled=!configured;$('open').textContent=configured?'打开聊天页面':'聊天地址还在配置'}
+const defaultRelayUrl='https://glorious-waffle-x5jj6wwv7v7xc6xv4-8787.app.github.dev/';
+const relayUrl=()=>localStorage.getItem('pocketRelayUrl')||defaultRelayUrl;
+$('url').value=relayUrl();
+function updateChatButton(){const configured=!!relayUrl();$('open').disabled=!configured;$('open').textContent=configured?'打开聊天页面':'聊天地址还在配置'}
 updateChatButton();
 const message=text=>$('notice').textContent=text;
 async function github(path,method='GET'){const response=await fetch('https://api.github.com'+path,{method,headers:{Authorization:`Bearer ${token}`,Accept:'application/vnd.github+json','X-GitHub-Api-Version':'2026-03-10'},signal:AbortSignal.timeout(20000)});if(response.status===304)return null;if(!response.ok){let data;try{data=await response.json()}catch{}throw Error(`GitHub ${response.status}：${data?.message||'请求失败'}。请检查权限、额度或网络。`)}return response.status===204?null:response.json()}
@@ -14,4 +16,4 @@ $('stop').onclick=()=>action(async()=>{clearInterval(poll);await github(target()
 $('logout').onclick=()=>{clearInterval(poll);token='';$('controls').hidden=true;$('spaces').replaceChildren();message('令牌已从页面内存中清除。')};
 $('spaces').onchange=()=>{clearInterval(poll);action(refresh)};
 $('saveUrl').onclick=()=>{try{const url=new URL($('url').value);if(url.protocol!=='https:'||url.username||url.password)throw Error('请输入不含账户密码的 HTTPS 地址');localStorage.setItem('pocketRelayUrl',url.href);updateChatButton();message('聊天地址已保存。是否可用还需实际打开验证。')}catch(e){message(e.message)}};
-$('open').onclick=()=>{const url=localStorage.getItem('pocketRelayUrl');if(url)window.open(url,'_blank','noopener,noreferrer')};
+$('open').onclick=()=>{const url=relayUrl();if(url)window.open(url,'_blank','noopener,noreferrer')};
