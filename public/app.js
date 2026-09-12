@@ -63,6 +63,6 @@ $('stop').onclick=async()=>{try{await call('stop',{threadId:selected});toast('�
 
 
 
-$('cloudStop').onclick=async()=>{const button=$('cloudStop');button.disabled=true;button.textContent='停止中';try{await call('cloudStop');clearTimeout(timer);autoRestore=false;location.href='https://xxby-cmd.github.io/pocket-codex-preview/?stopped=1';}catch(e){toast('停止结果尚未确认，请在启动入口查看状态：'+e.message);button.textContent='停止云端';button.disabled=false;}};
+$('cloudStop').onclick=async()=>{const button=$('cloudStop');button.disabled=true;button.textContent='停止中';try{await call('cloudStop');clearTimeout(timer);autoRestore=false;location.href='https://xxby-cmd.github.io/pocket-codex-preview/?stopped=1';}catch(e){location.href='https://xxby-cmd.github.io/pocket-codex-preview/?stopped=unconfirmed';}};
 $('fullscreen').onclick=async()=>{const active=document.body.classList.toggle('chat-fullscreen');$('fullscreen').textContent=active?'退出全屏':'全屏';try{if(active&&$('conversation').requestFullscreen)await $('conversation').requestFullscreen();else if(!active&&document.fullscreenElement)await document.exitFullscreen();}catch{} };
 document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement){document.body.classList.remove('chat-fullscreen');$('fullscreen').textContent='全屏';}});
