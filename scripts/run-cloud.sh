@@ -3,6 +3,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 project_dir="$(pwd -P)"
+port="${PORT:-8787}"
 if [[ -z "${POCKET_BROWSER_TOKEN:-}" || -z "${POCKET_HOST_TOKEN:-}" ]]; then
   echo '缺少 Codespaces Secrets，请检查手机和电脑连接密钥。' >&2; exit 1
 fi
@@ -10,7 +11,7 @@ node --check relay.mjs
 node --check auth.mjs
 expected_version="$(node runtime-version.mjs)"
 healthy() {
-  EXPECTED_VERSION="$expected_version" node --input-type=module -e "try{const r=await fetch('http://127.0.0.1:8787/ready',{signal:AbortSignal.timeout(1500)});const j=await r.json();process.exit(r.ok&&j.ready===true&&j.version===process.env.EXPECTED_VERSION?0:1)}catch{process.exit(1)}"
+  EXPECTED_PORT="$port" EXPECTED_VERSION="$expected_version" node --input-type=module -e "try{const r=await fetch('http://127.0.0.1:'+process.env.EXPECTED_PORT+'/ready',{signal:AbortSignal.timeout(1500)});const j=await r.json();process.exit(r.ok&&j.ready===true&&j.version===process.env.EXPECTED_VERSION?0:1)}catch{process.exit(1)}"
 }
 if [[ "${POCKET_FORCE_RESTART:-0}" == 1 ]] || ! healthy; then
   echo '正在替换旧版本或未就绪的中转进程……'
