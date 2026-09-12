@@ -10,3 +10,5 @@ function fixture(search=''){
 }
 test('saved automatic authorization starts then waits for relay readiness before navigation',async()=>{const f=fixture();await new Promise(r=>setTimeout(r,20));assert(f.calls.some(([url,method])=>url.endsWith('/start')&&method==='POST'));assert(f.calls.some(([url])=>url.endsWith('/ready')));assert(f.navigated.endsWith('.app.github.dev/'));});
 test('returning after stop does not automatically restart the cloud',async()=>{const f=fixture('?stopped=1');await new Promise(r=>setTimeout(r,20));assert(!f.calls.some(([,method])=>method==='POST'));assert.equal(f.navigated,'');});
+
+test('manual repair stops before starting and waits for readiness',async()=>{const f=fixture('?stopped=1');await f.nodes.get('repair').onclick();const mutations=f.calls.filter(([,method])=>method==='POST').map(([url])=>url.split('/').pop());assert.deepEqual(mutations,['stop','start']);assert(f.navigated.endsWith('.app.github.dev/'));});

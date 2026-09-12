@@ -1,3 +1,5 @@
+import {runtimeVersion} from './runtime-version.mjs';
+const runningVersion=runtimeVersion();
 import http from 'node:http';
 import {readFile} from 'node:fs/promises';
 import {randomUUID,timingSafeEqual} from 'node:crypto';
@@ -17,7 +19,7 @@ export function createRelay({browserToken,hostToken,authStorePath,authNow,authId
   const server=http.createServer(async(req,res)=>{
     res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('Referrer-Policy','no-referrer');
     const url=new URL(req.url,'http://localhost');
-    if(req.method==='GET'&&url.pathname==='/ready'){res.setHeader('Access-Control-Allow-Origin','https://xxby-cmd.github.io');return reply(res,200,{ready:true})}
+    if(req.method==='GET'&&url.pathname==='/ready'){res.setHeader('Access-Control-Allow-Origin','https://xxby-cmd.github.io');return reply(res,200,{ready:true,version:runningVersion})}
     if(req.method==='GET'&&url.pathname==='/usage')return reply(res,200,usage||{remainingHours:null,note:'等待电脑同步 GitHub 用量'});
     if(url.pathname.startsWith('/auth/')){
       try{return reply(res,200,auth.handle(req,res,url.pathname,await body(req)))}catch(e){return reply(res,e.status||400,{error:e.message})}
