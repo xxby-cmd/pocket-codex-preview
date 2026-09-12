@@ -5,8 +5,8 @@ project_dir="$(pwd -P)"
 while read -r relay_pid; do
   [[ -n "$relay_pid" ]] || continue
   if [[ "$(readlink -f "/proc/$relay_pid/cwd" || true)" == "$project_dir" ]]; then
-    kill "$relay_pid"
+    kill "$relay_pid" 2>/dev/null || true
   fi
-done < <(pgrep -f '^node relay.mjs$' || true)
+done < <(pgrep -f '^node (.*[/])?relay.mjs$' || true)
 sleep 1
 bash scripts/start-cloud.sh
