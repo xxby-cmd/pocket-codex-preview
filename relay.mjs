@@ -6,7 +6,7 @@ import path from 'node:path';
 import {createAuth} from './auth.mjs';
 
 const root=path.dirname(fileURLToPath(import.meta.url));
-const allowed=new Set(['list','read','send','new','pending','answer','stop','release','keepalive']);
+const allowed=new Set(['list','read','send','new','pending','answer','stop','release','keepalive','cloudStop']);
 export function createRelay({browserToken,hostToken,authStorePath,authNow,authIdleMs}) {
   if(!browserToken || !hostToken || browserToken.length<24 || hostToken.length<24 || browserToken===hostToken) throw Error('需要两个不同的至少 24 位访问密钥');
   const jobs=new Map(); let lastSeen=0; let usage=null;

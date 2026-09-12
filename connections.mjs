@@ -1,9 +1,11 @@
+import {stopCloud} from './cloud-control.mjs';
 import {Codex} from './codex.mjs';
 export class Connections {
   constructor(factory=()=>new Codex()){this.factory=factory;this.reader=factory();this.writers=new Map();this.sent=new Map();this.leases=new Map();}
   async start(){await this.reader.start();this.timer=setInterval(()=>{for(const [id,w]of this.writers)if(Date.now()-(this.leases.get(id)||0)>90000)this.release(id).catch(e=>console.error('释放连接失败：'+e.message));},5000);}
   async release(id){const w=this.writers.get(id);if(!w)return {released:true};w.leaving=true;if(w.sending.size){return {released:false,stopping:true};}try{if(w.active.has(id))await w.execute('stop',{threadId:id});}finally{w.close();if(this.writers.get(id)===w)this.writers.delete(id);this.leases.delete(id);}return {released:true};}
   async execute(op,a={}){
+    if(op==='cloudStop'){const result=await stopCloud();for(const id of [...this.writers.keys()])await this.release(id);return result;}
     if(op==='release')return this.release(a.threadId);
     if(op==='keepalive'){this.leases.set(a.threadId,Date.now());return {ok:true};}
     if(op==='pending')return [...this.writers.values()].flatMap(w=>[...w.requests.values()].map(({key,method,params})=>({key,method,params})));

@@ -2,3 +2,5 @@
 dialog{width:min(94vw,480px);max-height:90dvh;overflow:auto;border:1px solid var(--border);border-radius:18px;padding:24px}dialog::backdrop{background:#15243a88}#settingsForm{display:grid;gap:10px}#settingsForm input{min-width:0;width:100%}.check{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:400}.check input,#settingsForm .check input{width:20px;height:20px;flex:none}dialog>button{width:100%;margin-top:12px}
 
 .usageCard{padding:10px 5%;background:#edf3ff;border-bottom:1px solid #c9d9fa;min-height:62px}.usageCard strong,.usageCard small{display:block}.usageCard small{font-size:12px}#workspace:not([hidden]){height:calc(100dvh - 174px)}@media(max-width:700px){#workspace:not([hidden]){height:calc(100dvh - 158px)}}
+
+.cloudActions{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:8px}.cloudActions a{font-size:13px}.cloudActions button{color:#a52b26;border-color:#e4aaa6}.usageCard:has(#cloudStop:not([hidden]))+#main{height:auto}#workspace:not([hidden]){height:calc(100dvh - 230px)}@media(max-width:700px){#workspace:not([hidden]){height:calc(100dvh - 230px);min-height:420px}}
