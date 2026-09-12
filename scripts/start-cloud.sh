@@ -9,6 +9,9 @@ fi
 mkdir -p .local
 exec 9>.local/start.lock
 flock -w 20 9
+# The editor can restore its saved Private visibility after startup.
+# A singleton watcher repairs only relay port 8787 while this cloud is running.
+setsid nohup bash scripts/watch-port.sh </dev/null >>.local/port-watch.log 2>&1 9>&- &
 healthy() {
   node --input-type=module -e "try{const r=await fetch('http://127.0.0.1:8787/usage',{signal:AbortSignal.timeout(1500)});const j=await r.json();process.exit(r.ok&&('remainingHours' in j)?0:1)}catch{process.exit(1)}"
 }
