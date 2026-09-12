@@ -1,5 +1,5 @@
 const $=id=>document.getElementById(id);
-const name='cuddly-giggle-5gww6qqxjv9wfr45',relay=`https://${name}-8787.app.github.dev/`;
+const name='glorious-waffle-x5jj6wwv7v7xc6xv4',relay=`https://${name}-8787.app.github.dev/`;
 let token=localStorage.getItem('pocketGithubToken')||'',generation=0,busy=false;
 $('auto').checked=localStorage.getItem('pocketAutoStart')==='1';
 $('remember').checked=!!token;
