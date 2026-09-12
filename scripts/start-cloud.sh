@@ -11,12 +11,15 @@ exec 9>.local/start.lock
 flock -w 20 9
 # The editor can restore its saved Private visibility after startup.
 # A singleton watcher repairs only relay port 8787 while this cloud is running.
-setsid nohup bash scripts/watch-port.sh </dev/null >>.local/port-watch.log 2>&1 9>&- &
+start_port_watch() {
+  setsid nohup bash scripts/watch-port.sh </dev/null >>.local/port-watch.log 2>&1 9>&- &
+}
 healthy() {
   node --input-type=module -e "try{const r=await fetch('http://127.0.0.1:8787/usage',{signal:AbortSignal.timeout(1500)});const j=await r.json();process.exit(r.ok&&('remainingHours' in j)?0:1)}catch{process.exit(1)}"
 }
 if healthy; then
   bash scripts/public-port.sh
+  start_port_watch
   echo '中转已运行，8787 健康检查通过。'
   exit 0
 fi
@@ -39,6 +42,7 @@ echo "$relay_pid" > .local/relay.pid
 for attempt in $(seq 1 15); do
   if healthy; then
     bash scripts/public-port.sh
+  start_port_watch
     echo '中转启动成功：8787 健康检查通过。'
     exit 0
   fi
