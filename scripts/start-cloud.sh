@@ -13,6 +13,7 @@ healthy() {
   node --input-type=module -e "try{const r=await fetch('http://127.0.0.1:8787/usage',{signal:AbortSignal.timeout(1500)});const j=await r.json();process.exit(r.ok&&('remainingHours' in j)?0:1)}catch{process.exit(1)}"
 }
 if healthy; then
+  bash scripts/public-port.sh
   echo '中转已运行，8787 健康检查通过。'
   exit 0
 fi
@@ -34,6 +35,7 @@ relay_pid=$!
 echo "$relay_pid" > .local/relay.pid
 for attempt in $(seq 1 15); do
   if healthy; then
+    bash scripts/public-port.sh
     echo '中转启动成功：8787 健康检查通过。'
     exit 0
   fi
