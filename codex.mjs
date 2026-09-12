@@ -1,3 +1,4 @@
+import {historyPage} from './history.mjs';
 import {spawn} from 'node:child_process';
 import {createInterface} from 'node:readline';
 import {randomUUID} from 'node:crypto';
@@ -11,7 +12,7 @@ export class Codex {
       if(m.method&&m.id!==undefined){const key=randomUUID();this.requests.set(key,{key,id:m.id,method:m.method,params:m.params});return}
       if(m.id!==undefined&&this.calls.has(m.id)){const c=this.calls.get(m.id);this.calls.delete(m.id);clearTimeout(c.timer);m.error?c.reject(Error(m.error.message)):c.resolve(m.result)}
       if(m.method==='turn/started')this.active.set(m.params.threadId,m.params.turn.id);
-      if(m.method==='turn/completed'){this.active.delete(m.params.threadId);for(const [k,r]of this.requests)if(r.params?.threadId===m.params.threadId)this.requests.delete(k)}
+      if(m.method==='turn/completed'){this.active.delete(m.params.threadId);this.onCompleted?.(m.params.threadId);for(const [k,r]of this.requests)if(r.params?.threadId===m.params.threadId)this.requests.delete(k)}
       if(m.method==='serverRequest/resolved')for(const [k,r]of this.requests)if(r.id===m.params.requestId)this.requests.delete(k);
     });
     await this.call('initialize',{clientInfo:{name:'pocket_codex',version:'0.1.0'}});this.write({method:'initialized',params:{}});
@@ -33,7 +34,7 @@ export class Codex {
     }
     if(op==='new'){const r=await this.call('thread/start',{approvalPolicy:'on-request'});this.loaded.add(r.thread.id);return {id:r.thread.id}}
     if(typeof a.threadId!=='string'||!/^[a-zA-Z0-9_-]{1,100}$/.test(a.threadId))throw Error('无效的对话编号');
-    if(op==='read'){const r=await this.call('thread/read',{threadId:a.threadId,includeTurns:true});return {id:r.thread.id,name:r.thread.name,status:this.active.has(a.threadId)?'working':'unknown',messages:r.thread.turns.flatMap(t=>t.items.filter(i=>['userMessage','agentMessage'].includes(i.type)).map(i=>({id:i.id,role:i.type==='userMessage'?'user':'assistant',text:i.text||i.content?.filter(c=>c.type==='text').map(c=>c.text).join('\n')||''}))),turns:r.thread.turns.length}}
+    if(op==='read'){const r=await this.call('thread/read',{threadId:a.threadId,includeTurns:true});return {...historyPage(r.thread,a.cursor??null),status:this.active.has(a.threadId)?'working':'unknown'}}
     if(op==='stop'){const turnId=this.active.get(a.threadId);if(!turnId)throw Error('此连接程序没有接管该对话的运行，不能停止桌面端任务');return this.call('turn/interrupt',{threadId:a.threadId,turnId})}
     if(op==='send'){
       if(typeof a.text!=='string'||!a.text.trim()||a.text.length>30000)throw Error('消息不能为空或超过 30000 字');
@@ -51,3 +52,4 @@ export class Codex {
   }
   close(){this.child?.kill()}
 }
+
