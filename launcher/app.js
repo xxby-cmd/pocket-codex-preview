@@ -1,5 +1,8 @@
 const $=id=>document.getElementById(id);let token='',poll;
-const defaultRelayUrl='https://glorious-waffle-x5jj6wwv7v7xc6xv4-8787.app.github.dev/';
+const defaultRelayUrl='https://cuddly-giggle-5gww6qqxjv9wfr45-8787.app.github.dev/';
+const retiredRelayUrl='https://glorious-waffle-x5jj6wwv7v7xc6xv4-8787.app.github.dev';
+const savedRelayUrl=localStorage.getItem('pocketRelayUrl');
+if(savedRelayUrl===retiredRelayUrl||savedRelayUrl===retiredRelayUrl+'/')localStorage.setItem('pocketRelayUrl',defaultRelayUrl);
 const relayUrl=()=>localStorage.getItem('pocketRelayUrl')||defaultRelayUrl;
 $('url').value=relayUrl();
 function updateChatButton(){const configured=!!relayUrl();$('open').disabled=!configured;$('open').textContent=configured?'打开聊天页面':'聊天地址还在配置'}
